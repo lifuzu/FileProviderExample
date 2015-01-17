@@ -34,6 +34,7 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        progressDialog = new ProgressDialog(MainActivity.this);
         updateHandler = new Handler();
     }
 
@@ -60,14 +61,13 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void startDownload(View view) {
-//        progressDialog = new ProgressDialog(MainActivity.this);
-//
-//        progressDialog.setTitle("Downloading Image ...");
-//        progressDialog.setMessage("Download in progress ...");
-//        progressDialog.setProgressStyle(progressDialog.STYLE_HORIZONTAL);
-//        progressDialog.setProgress(0);
-//        progressDialog.setMax(20);
-//        progressDialog.show();
+
+        progressDialog.setTitle("Downloading Image ...");
+        progressDialog.setMessage("Download in progress ...");
+        progressDialog.setProgressStyle(progressDialog.STYLE_HORIZONTAL);
+        progressDialog.setProgress(0);
+        progressDialog.setMax(100);
+        progressDialog.show();
 //
 //        new Thread(new Runnable() {
 //            @Override
@@ -90,7 +90,8 @@ public class MainActivity extends ActionBarActivity {
 //                }
 //            }
 //        }).start();
-        download("http://farm1.static.flickr.com/114/298125983_0e4bf66782_b.jpg", "abc.jpg");
+        download("https://farm8.staticflickr.com/7480/15854857509_98b44827c9_o_d.jpg", "abc.jpg");
+        //download("http://farm1.static.flickr.com/114/298125983_0e4bf66782_b.jpg", "abc.jpg");
 
 
     }
@@ -120,6 +121,8 @@ public class MainActivity extends ActionBarActivity {
                     while ((count = input.read(data)) != -1) {
                         total += count;
                         // increase progress bar here
+                        progressDialog.setProgress((int)(total*100)/fileLength);
+
                         // write data into file
                         output.write(data, 0, count);
                     }
@@ -128,6 +131,8 @@ public class MainActivity extends ActionBarActivity {
                     output.flush();
                     output.close();
                     input.close();
+                    // dismiss the progress bar
+                    progressDialog.dismiss();
                 } catch (Exception e) {
                     e.printStackTrace();
                     Log.i("ERROR ON DOWNLOADING FILES", "ERROR IS" + e);
