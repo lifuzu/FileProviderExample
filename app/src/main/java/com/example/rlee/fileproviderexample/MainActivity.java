@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Message;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -27,7 +28,8 @@ public class MainActivity extends ActionBarActivity {
 
     // Progress Bar and update handler
     ProgressDialog progressDialog;
-    Handler updateHandler;
+    Handler handler;
+    private static final int DOWNLOAD_COMPLETED = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +37,16 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         progressDialog = new ProgressDialog(MainActivity.this);
-        updateHandler = new Handler();
+        handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                switch (msg.what) {
+                    case DOWNLOAD_COMPLETED:
+                        startDisplay();
+                        break;
+                }
+            }
+        };
     }
 
     @Override
@@ -131,6 +142,10 @@ public class MainActivity extends ActionBarActivity {
                     output.flush();
                     output.close();
                     input.close();
+                    // send message to launch Reader
+                    Message msg = Message.obtain();
+                    msg.what = DOWNLOAD_COMPLETED;
+                    handler.sendMessage(msg);
                     // dismiss the progress bar
                     progressDialog.dismiss();
                 } catch (Exception e) {
@@ -141,7 +156,7 @@ public class MainActivity extends ActionBarActivity {
         }).start();
     }
 
-    public void startDisplay(View view) {
+    public void startDisplay() {
         // show jpg in gallery
         File file = new File(getFilesDir(), "abc.jpg");
         Uri fileUri = FileProvider.getUriForFile(this, "com.example.rlee.fileproviderexample.fileprovider", file);
